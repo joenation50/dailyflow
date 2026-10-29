@@ -89,8 +89,16 @@
                   <option value="study">Study</option>
                   <option value="health">Health</option>
                 </select>
-                <button type="submit" class="primary-btn full">Save task</button>
+
+                <select id="task-recurrence">
+                  <option value="none" selected>One-time</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
               </div>
+
+              <button type="submit" class="primary-btn full">Save task</button>
             </form>
           </div>
 
@@ -121,7 +129,14 @@
             <ul id="upcoming-list" class="task-list"></ul>
           </div>
 
-          <div class="panel list-panel">
+          <div class="panel list-panel full-width">
+            <div class="section-header">
+              <h3>This week</h3>
+            </div>
+            <ul id="week-list" class="task-list"></ul>
+          </div>
+
+          <div class="panel list-panel full-width">
             <div class="section-header">
               <h3>Notes</h3>
             </div>

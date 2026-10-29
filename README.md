@@ -3,8 +3,9 @@
 A simple personal planner and daily focus dashboard for busy people.
 
 ## What it does
-- Capture tasks with priority and date
+- Capture tasks with priority, date, and recurrence
 - View a clear daily focus list
+- See a week overview for upcoming work
 - Save quick notes and ideas
 - Track completed vs upcoming tasks
 - Keep everything in your browser with local storage
@@ -31,13 +32,17 @@ This is the MVP for a broader productivity app that helps people answer one ques
 
 The app focuses on a universal pain point: overwhelm, poor organization, and too much admin.
 
+## New upgrade included
+- recurring tasks (daily, weekly, monthly)
+- weekly overview section
+- improved task metadata
+
 ## Future upgrades
 - user accounts
-- recurring tasks
+- recurring task automation
 - calendar sync
 - AI task prioritization
 - weekly planning
-- team collaboration
 - mobile version
 ---
 

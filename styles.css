@@ -253,6 +253,10 @@ input:focus, select:focus, textarea:focus {
   min-height: 290px;
 }
 
+.full-width {
+  grid-column: 1 / -1;
+}
+
 .task-list,
 .note-list {
   list-style: none;
