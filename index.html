@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DailyFlow</title>
+    <meta name="description" content="A simple personal life planner and daily focus dashboard." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-wrap">
+          <div class="brand-mark">DF</div>
+          <div>
+            <p class="eyebrow">Personal plan</p>
+            <h1>DailyFlow</h1>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active">Overview</button>
+          <button class="nav-item">Today</button>
+          <button class="nav-item">Planner</button>
+          <button class="nav-item">Notes</button>
+        </nav>
+
+        <div class="mini-card">
+          <p class="eyebrow">Focus</p>
+          <h3 id="focus-title">3 priorities</h3>
+          <ul id="focus-list" class="tiny-list"></ul>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Good morning</p>
+            <h2 id="today-label">Monday, 1 Jan</h2>
+          </div>
+          <button class="primary-btn" id="quick-add-btn">+ Quick add</button>
+        </header>
+
+        <section class="stats-grid" id="stats-grid">
+          <article class="stats-card accent">
+            <span>Tasks today</span>
+            <strong id="today-count">0</strong>
+          </article>
+          <article class="stats-card">
+            <span>Upcoming</span>
+            <strong id="upcoming-count">0</strong>
+          </article>
+          <article class="stats-card">
+            <span>Completed</span>
+            <strong id="completed-count">0</strong>
+          </article>
+          <article class="stats-card">
+            <span>Focus score</span>
+            <strong id="focus-score">0%</strong>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <div class="panel main-panel-card">
+            <div class="section-header">
+              <h3>Add task</h3>
+            </div>
+
+            <form id="task-form" class="task-form">
+              <input id="task-title" type="text" placeholder="What needs to be done?" required />
+
+              <div class="input-row">
+                <select id="task-priority">
+                  <option value="high">High priority</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+
+                <input id="task-date" type="date" />
+              </div>
+
+              <div class="input-row">
+                <select id="task-category">
+                  <option value="work">Work</option>
+                  <option value="personal">Personal</option>
+                  <option value="study">Study</option>
+                  <option value="health">Health</option>
+                </select>
+                <button type="submit" class="primary-btn full">Save task</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel main-panel-card">
+            <div class="section-header">
+              <h3>Quick notes</h3>
+            </div>
+
+            <form id="note-form" class="note-form">
+              <textarea id="note-input" rows="4" placeholder="Capture a thought, idea, or reminder..."></textarea>
+              <button type="submit" class="secondary-btn full">Add note</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="lists-grid">
+          <div class="panel list-panel">
+            <div class="section-header">
+              <h3>Today’s focus</h3>
+            </div>
+            <ul id="today-list" class="task-list"></ul>
+          </div>
+
+          <div class="panel list-panel">
+            <div class="section-header">
+              <h3>Upcoming</h3>
+            </div>
+            <ul id="upcoming-list" class="task-list"></ul>
+          </div>
+
+          <div class="panel list-panel">
+            <div class="section-header">
+              <h3>Notes</h3>
+            </div>
+            <ul id="notes-list" class="note-list"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
