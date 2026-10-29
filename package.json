@@ -1,0 +1,26 @@
+{
+  "name": "dailyflow",
+  "version": "1.1.0",
+  "description": "DailyFlow personal planner app with authentication and SQLite storage",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "productivity",
+    "planner",
+    "dailyflow",
+    "todo",
+    "notes",
+    "fullstack"
+  ],
+  "author": "Joseph",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.7.0",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}
