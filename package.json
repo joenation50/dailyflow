@@ -4,6 +4,7 @@
   "description": "DailyFlow personal planner app with authentication and SQLite storage",
   "main": "server.js",
   "scripts": {
+    "build": "node --check server.js",
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
