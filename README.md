@@ -1,49 +1,57 @@
 # DailyFlow
 
-A simple personal planner and daily focus dashboard for busy people.
+DailyFlow is a personal productivity app designed around a universal pain point: people feel overwhelmed by tasks, notes, deadlines, and decisions.
 
-## What it does
-- Capture tasks with priority, date, and recurrence
-- View a clear daily focus list
-- See a week overview for upcoming work
-- Save quick notes and ideas
-- Track completed vs upcoming tasks
-- Keep everything in your browser with local storage
+## What this version includes
+- login and signup
+- user-specific task storage
+- user-specific notes
+- daily focus overview
+- weekly planning view
+- recurring task support
+- persistent SQLite database
 
 ## Run it locally
-Because this is a lightweight static app, you can open the `index.html` file directly in a browser.
-
-For a local web server, run:
+1. Install dependencies:
 
 ```bash
-python3 -m http.server 8000
+npm install
 ```
 
-Then open:
+2. Start the app:
+
+```bash
+npm start
+```
+
+3. Open the app in your browser:
 
 ```text
-http://localhost:8000
+http://localhost:3000
 ```
 
-## Project idea
-This is the MVP for a broader productivity app that helps people answer one question:
+## Tech stack
+- Node.js
+- Express
+- SQLite (better-sqlite3)
+- Sessions for auth
+- bcrypt for password hashing
+
+## Product idea
+This app helps people answer one question quickly:
 
 > What should I do next?
 
-The app focuses on a universal pain point: overwhelm, poor organization, and too much admin.
+That is a broad, real pain point that affects students, professionals, freelancers, and busy people everywhere.
 
-## New upgrade included
-- recurring tasks (daily, weekly, monthly)
-- weekly overview section
-- improved task metadata
-
-## Future upgrades
-- user accounts
+## Future roadmap
+- AI priority suggestions
+- calendar integration
+- mobile optimization
+- reminders and notifications
+- team collaboration
 - recurring task automation
-- calendar sync
-- AI task prioritization
-- weekly planning
-- mobile version
+
 ---
 
-This repository is a starting point for the DailyFlow concept.
+This repository is the full-stack MVP for DailyFlow.

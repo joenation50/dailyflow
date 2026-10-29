@@ -1,77 +1,76 @@
 const STORAGE_KEY = 'dailyflow-state-v1';
 
-function todayString() {
-  const d = new Date();
-  return d.toISOString().split('T')[0];
-}
+const authView = document.getElementById('authView');
+const appView = document.getElementById('appView');
+const authMessage = document.getElementById('authMessage');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const toggleButtons = document.querySelectorAll('.toggle-btn');
+const logoutBtn = document.getElementById('logoutBtn');
 
-function tomorrowString() {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().split('T')[0];
-}
-
-function getDateOffset(days) {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
-}
-
-const defaultState = {
-  tasks: [
-    { id: crypto.randomUUID(), title: 'Submit proposal draft', priority: 'high', category: 'work', date: todayString(), recurrence: 'none', completed: false },
-    { id: crypto.randomUUID(), title: 'Review class notes', priority: 'medium', category: 'study', date: tomorrowString(), recurrence: 'none', completed: false },
-    { id: crypto.randomUUID(), title: 'Go for a 30-minute walk', priority: 'low', category: 'health', date: todayString(), recurrence: 'weekly', completed: false },
-  ],
-  notes: [
-    { id: crypto.randomUUID(), text: 'Launch the landing page mockup by Friday.' },
-    { id: crypto.randomUUID(), text: 'Remember to follow up on the client email today.' }
-  ]
-};
-
-const state = loadState();
-
-const taskForm = document.getElementById('task-form');
-const noteForm = document.getElementById('note-form');
-const taskTitle = document.getElementById('task-title');
-const taskPriority = document.getElementById('task-priority');
-const taskDate = document.getElementById('task-date');
-const taskCategory = document.getElementById('task-category');
-const taskRecurrence = document.getElementById('task-recurrence');
-const noteInput = document.getElementById('note-input');
-const todayList = document.getElementById('today-list');
-const upcomingList = document.getElementById('upcoming-list');
-const weekList = document.getElementById('week-list');
-const notesList = document.getElementById('notes-list');
-const focusList = document.getElementById('focus-list');
-const quickAddBtn = document.getElementById('quick-add-btn');
 const todayLabel = document.getElementById('today-label');
 const todayCount = document.getElementById('today-count');
 const upcomingCount = document.getElementById('upcoming-count');
 const completedCount = document.getElementById('completed-count');
 const focusScore = document.getElementById('focus-score');
 const focusTitle = document.getElementById('focus-title');
+const focusList = document.getElementById('focus-list');
+const todayList = document.getElementById('todayList');
+const upcomingList = document.getElementById('upcomingList');
+const weekList = document.getElementById('weekList');
+const notesList = document.getElementById('notesList');
 
-function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return structuredClone(defaultState);
+const taskForm = document.getElementById('taskForm');
+const taskTitle = document.getElementById('taskTitle');
+const taskPriority = document.getElementById('taskPriority');
+const taskDate = document.getElementById('taskDate');
+const taskCategory = document.getElementById('taskCategory');
+const taskRecurrence = document.getElementById('taskRecurrence');
+const noteForm = document.getElementById('noteForm');
+const noteInput = document.getElementById('noteInput');
+const quickAddBtn = document.getElementById('quick-add-btn');
 
-  try {
-    return JSON.parse(saved);
-  } catch {
-    return structuredClone(defaultState);
+const state = {
+  user: null,
+  tasks: [],
+  notes: []
+};
+
+async function apiRequest(path, options = {}) {
+  const res = await fetch(path, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    },
+    ...options
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(data.message || 'Something went wrong');
   }
+
+  return data;
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function setAuthMessage(message, isError = false) {
+  authMessage.textContent = message;
+  authMessage.style.color = isError ? '#ef4444' : '#10b981';
+}
+
+function setViewMode(loggedIn) {
+  authView.classList.toggle('hidden', loggedIn);
+  appView.classList.toggle('hidden', !loggedIn);
+}
+
+function getTodayString() {
+  return new Date().toISOString().split('T')[0];
 }
 
 function formatDate(dateString) {
   if (!dateString) return 'No date';
-
-  const date = new Date(dateString + 'T12:00:00');
-  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date);
+  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(dateString + 'T12:00:00'));
 }
 
 function priorityRank(priority) {
@@ -88,38 +87,19 @@ function isWithinDays(dateString, days) {
   return target >= today && target <= maxDate;
 }
 
-function getTodayTasks() {
-  const today = todayString();
-  return state.tasks.filter(task => !task.completed && task.date === today).sort((a, b) => priorityRank(b.priority) - priorityRank(a.priority));
-}
-
-function getUpcomingTasks() {
-  const today = todayString();
-  return state.tasks
-    .filter(task => !task.completed && task.date && task.date !== today)
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(0, 6);
-}
-
-function getWeekTasks() {
-  return state.tasks
-    .filter(task => !task.completed && task.date && isWithinDays(task.date, 7))
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
-}
-
-function getCompletedTasks() {
-  return state.tasks.filter(task => task.completed).length;
+function sortTasks(tasks) {
+  return [...tasks].sort((a, b) => {
+    const priorityDiff = priorityRank(b.priority) - priorityRank(a.priority);
+    if (priorityDiff !== 0) return priorityDiff;
+    return new Date(a.date || '9999-12-31') - new Date(b.date || '9999-12-31');
+  });
 }
 
 function renderFocus() {
-  const focused = state.tasks
-    .filter(task => !task.completed)
-    .sort((a, b) => priorityRank(b.priority) - priorityRank(a.priority))
-    .slice(0, 3);
-
+  const focused = sortTasks(state.tasks.filter(task => !task.completed)).slice(0, 3);
   if (!focused.length) {
-    focusList.innerHTML = '<li>All caught up.</li>';
     focusTitle.textContent = 'All clear';
+    focusList.innerHTML = '<li>All caught up.</li>';
     return;
   }
 
@@ -128,30 +108,30 @@ function renderFocus() {
 }
 
 function renderStats() {
-  const today = getTodayTasks();
-  const upcoming = getUpcomingTasks();
-  const completed = getCompletedTasks();
-  const incompleteCount = state.tasks.filter(task => !task.completed).length;
-  const total = state.tasks.length || 1;
-  const focusPercent = Math.round(((state.tasks.length - incompleteCount) / total) * 100);
+  const todayTasks = state.tasks.filter(task => !task.completed && task.date === getTodayString());
+  const upcomingTasks = state.tasks.filter(task => !task.completed && task.date && task.date !== getTodayString());
+  const completedTasks = state.tasks.filter(task => task.completed).length;
+  const totalCount = state.tasks.length || 1;
+  const completion = Math.round(((state.tasks.length - state.tasks.filter(task => !task.completed).length) / totalCount) * 100);
 
-  todayCount.textContent = String(today.length);
-  upcomingCount.textContent = String(upcoming.length);
-  completedCount.textContent = String(completed);
-  focusScore.textContent = `${focusPercent}%`;
+  todayCount.textContent = String(todayTasks.length);
+  upcomingCount.textContent = String(upcomingTasks.length);
+  completedCount.textContent = String(completedTasks);
+  focusScore.textContent = `${completion}%`;
 }
 
-function renderTaskList(container, tasks, isUpcoming = false) {
+function renderTaskList(container, tasks, showDelete = false) {
   if (!tasks.length) {
     container.innerHTML = '<li class="empty-state">No tasks here yet.</li>';
     return;
   }
 
   container.innerHTML = tasks.map(task => {
-    const recurrenceText = task.recurrence && task.recurrence !== 'none' ? ` • ${task.recurrence}` : '';
-    const actionButton = isUpcoming
-      ? `<button class="delete-btn" data-del="${task.id}">Remove</button>`
-      : `<button class="complete-btn" data-id="${task.id}">Done</button>`;
+    const action = task.completed
+      ? '<button class="delete-btn" data-task-id="' + task.id + '">Remove</button>'
+      : showDelete
+        ? '<button class="delete-btn" data-task-id="' + task.id + '">Remove</button>'
+        : '<button class="complete-btn" data-task-id="' + task.id + '">Done</button>';
 
     return `
       <li class="task-item">
@@ -159,12 +139,10 @@ function renderTaskList(container, tasks, isUpcoming = false) {
           <span class="task-bullet priority-${task.priority}"></span>
           <div>
             <p class="task-title">${task.title}</p>
-            <div class="task-meta">${task.category} • ${formatDate(task.date)}${recurrenceText}</div>
+            <div class="task-meta">${task.category} • ${formatDate(task.date)}${task.recurrence && task.recurrence !== 'none' ? ' • ' + task.recurrence : ''}</div>
           </div>
         </div>
-        <div>
-          ${actionButton}
-        </div>
+        <div>${action}</div>
       </li>
     `;
   }).join('');
@@ -185,7 +163,7 @@ function renderNotes() {
           <p class="note-text">${note.text}</p>
         </div>
       </div>
-      <button class="delete-btn" data-note="${note.id}">Delete</button>
+      <button class="delete-btn" data-note-id="${note.id}">Delete</button>
     </li>
   `).join('');
 }
@@ -193,97 +171,216 @@ function renderNotes() {
 function render() {
   const date = new Date();
   todayLabel.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
   renderStats();
   renderFocus();
-  renderTaskList(todayList, getTodayTasks(), false);
-  renderTaskList(upcomingList, getUpcomingTasks(), true);
-  renderTaskList(weekList, getWeekTasks(), true);
+
+  const todayTasks = sortTasks(state.tasks.filter(task => !task.completed && task.date === getTodayString()));
+  const upcomingTasks = sortTasks(state.tasks.filter(task => !task.completed && task.date && task.date !== getTodayString())).slice(0, 6);
+  const weeklyTasks = sortTasks(state.tasks.filter(task => !task.completed && task.date && isWithinDays(task.date, 7)));
+
+  renderTaskList(todayList, todayTasks, false);
+  renderTaskList(upcomingList, upcomingTasks, true);
+  renderTaskList(weekList, weeklyTasks, true);
   renderNotes();
 }
 
-function addTask(event) {
-  event.preventDefault();
-  const title = taskTitle.value.trim();
-  if (!title) return;
+async function loadDashboard() {
+  try {
+    const [taskData, noteData] = await Promise.all([
+      apiRequest('/api/tasks'),
+      apiRequest('/api/notes')
+    ]);
 
-  const newTask = {
-    id: crypto.randomUUID(),
-    title,
-    priority: taskPriority.value,
-    category: taskCategory.value,
-    date: taskDate.value || todayString(),
-    recurrence: taskRecurrence.value,
-    completed: false,
-  };
-
-  state.tasks.unshift(newTask);
-  saveState();
-  taskForm.reset();
-  taskPriority.value = 'medium';
-  taskCategory.value = 'work';
-  taskRecurrence.value = 'none';
-  render();
+    state.tasks = taskData.tasks || [];
+    state.notes = noteData.notes || [];
+    render();
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-function addNote(event) {
+async function loadSession() {
+  try {
+    const data = await apiRequest('/api/session');
+    state.user = data.user;
+    if (state.user) {
+      setViewMode(true);
+      await loadDashboard();
+      return;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+  setViewMode(false);
+}
+
+async function handleLoginSubmit(event) {
+  event.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  try {
+    const result = await apiRequest('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+
+    state.user = result.user;
+    setViewMode(true);
+    setAuthMessage('Login successful');
+    loginForm.reset();
+    await loadDashboard();
+  } catch (err) {
+    setAuthMessage(err.message, true);
+  }
+}
+
+async function handleSignupSubmit(event) {
+  event.preventDefault();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+
+  try {
+    const result = await apiRequest('/api/signup', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+
+    state.user = result.user;
+    setViewMode(true);
+    setAuthMessage('Account created successfully');
+    signupForm.reset();
+    await loadDashboard();
+  } catch (err) {
+    setAuthMessage(err.message, true);
+  }
+}
+
+async function handleLogout() {
+  try {
+    await apiRequest('/api/logout', { method: 'POST' });
+    state.user = null;
+    state.tasks = [];
+    state.notes = [];
+    setViewMode(false);
+    setAuthMessage('');
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function handleTaskSubmit(event) {
+  event.preventDefault();
+  const payload = {
+    title: taskTitle.value.trim(),
+    priority: taskPriority.value,
+    category: taskCategory.value,
+    date: taskDate.value || getTodayString(),
+    recurrence: taskRecurrence.value
+  };
+
+  if (!payload.title) return;
+
+  try {
+    await apiRequest('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    taskForm.reset();
+    taskPriority.value = 'medium';
+    taskCategory.value = 'work';
+    taskRecurrence.value = 'none';
+    await loadDashboard();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function handleNoteSubmit(event) {
   event.preventDefault();
   const text = noteInput.value.trim();
   if (!text) return;
 
-  state.notes.unshift({ id: crypto.randomUUID(), text });
-  saveState();
-  noteForm.reset();
-  render();
+  try {
+    await apiRequest('/api/notes', {
+      method: 'POST',
+      body: JSON.stringify({ text })
+    });
+
+    noteForm.reset();
+    await loadDashboard();
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-function toggleCompleted(id) {
-  const task = state.tasks.find(item => item.id === id);
-  if (!task) return;
-  task.completed = true;
-  saveState();
-  render();
+async function markTaskComplete(taskId) {
+  try {
+    await apiRequest(`/api/tasks/${taskId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ completed: true })
+    });
+    await loadDashboard();
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-function deleteTask(id) {
-  state.tasks = state.tasks.filter(task => task.id !== id);
-  saveState();
-  render();
+async function deleteTask(taskId) {
+  try {
+    await apiRequest(`/api/tasks/${taskId}`, { method: 'DELETE' });
+    await loadDashboard();
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-function deleteNote(id) {
-  state.notes = state.notes.filter(note => note.id !== id);
-  saveState();
-  render();
+async function deleteNote(noteId) {
+  try {
+    await apiRequest(`/api/notes/${noteId}`, { method: 'DELETE' });
+    await loadDashboard();
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-taskForm.addEventListener('submit', addTask);
-noteForm.addEventListener('submit', addNote);
-quickAddBtn.addEventListener('click', () => {
-  taskTitle.focus();
+loginForm.addEventListener('submit', handleLoginSubmit);
+signupForm.addEventListener('submit', handleSignupSubmit);
+logoutBtn.addEventListener('click', handleLogout);
+taskForm.addEventListener('submit', handleTaskSubmit);
+noteForm.addEventListener('submit', handleNoteSubmit);
+quickAddBtn.addEventListener('click', () => taskTitle.focus());
+
+toggleButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const tab = button.dataset.authTab;
+    toggleButtons.forEach(btn => btn.classList.toggle('active', btn === button));
+    loginForm.classList.toggle('visible', tab === 'login');
+    loginForm.classList.toggle('hidden', tab !== 'login');
+    signupForm.classList.toggle('visible', tab === 'signup');
+    signupForm.classList.toggle('hidden', tab !== 'signup');
+  });
 });
 
 document.addEventListener('click', event => {
-  const doneButton = event.target.closest('.complete-btn');
-  const deleteButton = event.target.closest('.delete-btn');
-  const noteDeleteButton = event.target.closest('[data-note]');
-  const taskDeleteButton = event.target.closest('[data-del]');
+  const completeBtn = event.target.closest('.complete-btn');
+  const deleteTaskBtn = event.target.closest('[data-task-id]');
+  const deleteNoteBtn = event.target.closest('[data-note-id]');
 
-  if (doneButton) {
-    toggleCompleted(doneButton.dataset.id);
+  if (completeBtn) {
+    markTaskComplete(completeBtn.dataset.taskId);
   }
 
-  if (taskDeleteButton) {
-    deleteTask(taskDeleteButton.dataset.del);
+  if (deleteTaskBtn && !deleteTaskBtn.classList.contains('complete-btn')) {
+    deleteTask(deleteTaskBtn.dataset.taskId);
   }
 
-  if (noteDeleteButton) {
-    deleteNote(noteDeleteButton.dataset.note);
-  }
-
-  if (deleteButton && !taskDeleteButton && !noteDeleteButton) {
-    const id = deleteButton.dataset.del || deleteButton.dataset.note;
-    if (id) deleteTask(id);
+  if (deleteNoteBtn) {
+    deleteNote(deleteNoteBtn.dataset.noteId);
   }
 });
 
-render();
+loadSession();

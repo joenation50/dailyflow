@@ -4,14 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DailyFlow</title>
-    <meta name="description" content="A simple personal life planner and daily focus dashboard." />
+    <meta name="description" content="DailyFlow is a personal planner and focus dashboard for busy people." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app-shell">
+    <div id="authView" class="auth-shell">
+      <div class="auth-card">
+        <div class="brand-wrap auth-brand">
+          <div class="brand-mark">DF</div>
+          <div>
+            <p class="eyebrow">Personal planner</p>
+            <h1>DailyFlow</h1>
+          </div>
+        </div>
+
+        <div class="auth-toggle">
+          <button class="toggle-btn active" data-auth-tab="login">Login</button>
+          <button class="toggle-btn" data-auth-tab="signup">Sign up</button>
+        </div>
+
+        <form id="loginForm" class="auth-form visible">
+          <input id="loginEmail" type="email" placeholder="Email address" required />
+          <input id="loginPassword" type="password" placeholder="Password" required />
+          <button type="submit" class="primary-btn full">Log in</button>
+        </form>
+
+        <form id="signupForm" class="auth-form hidden">
+          <input id="signupEmail" type="email" placeholder="Email address" required />
+          <input id="signupPassword" type="password" placeholder="Password" required />
+          <button type="submit" class="primary-btn full">Create account</button>
+        </form>
+
+        <p id="authMessage" class="auth-message"></p>
+      </div>
+    </div>
+
+    <div id="appView" class="app-shell hidden">
       <aside class="sidebar">
         <div class="brand-wrap">
           <div class="brand-mark">DF</div>
@@ -33,6 +64,8 @@
           <h3 id="focus-title">3 priorities</h3>
           <ul id="focus-list" class="tiny-list"></ul>
         </div>
+
+        <button id="logoutBtn" class="secondary-btn full logout-btn">Log out</button>
       </aside>
 
       <main class="main-panel">
@@ -69,28 +102,28 @@
               <h3>Add task</h3>
             </div>
 
-            <form id="task-form" class="task-form">
-              <input id="task-title" type="text" placeholder="What needs to be done?" required />
+            <form id="taskForm" class="task-form">
+              <input id="taskTitle" type="text" placeholder="What needs to be done?" required />
 
               <div class="input-row">
-                <select id="task-priority">
+                <select id="taskPriority">
                   <option value="high">High priority</option>
                   <option value="medium" selected>Medium</option>
                   <option value="low">Low</option>
                 </select>
 
-                <input id="task-date" type="date" />
+                <input id="taskDate" type="date" />
               </div>
 
               <div class="input-row">
-                <select id="task-category">
+                <select id="taskCategory">
                   <option value="work">Work</option>
                   <option value="personal">Personal</option>
                   <option value="study">Study</option>
                   <option value="health">Health</option>
                 </select>
 
-                <select id="task-recurrence">
+                <select id="taskRecurrence">
                   <option value="none" selected>One-time</option>
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
@@ -107,8 +140,8 @@
               <h3>Quick notes</h3>
             </div>
 
-            <form id="note-form" class="note-form">
-              <textarea id="note-input" rows="4" placeholder="Capture a thought, idea, or reminder..."></textarea>
+            <form id="noteForm" class="note-form">
+              <textarea id="noteInput" rows="4" placeholder="Capture a thought, idea, or reminder..."></textarea>
               <button type="submit" class="secondary-btn full">Add note</button>
             </form>
           </div>
@@ -119,28 +152,28 @@
             <div class="section-header">
               <h3>Today’s focus</h3>
             </div>
-            <ul id="today-list" class="task-list"></ul>
+            <ul id="todayList" class="task-list"></ul>
           </div>
 
           <div class="panel list-panel">
             <div class="section-header">
               <h3>Upcoming</h3>
             </div>
-            <ul id="upcoming-list" class="task-list"></ul>
+            <ul id="upcomingList" class="task-list"></ul>
           </div>
 
           <div class="panel list-panel full-width">
             <div class="section-header">
               <h3>This week</h3>
             </div>
-            <ul id="week-list" class="task-list"></ul>
+            <ul id="weekList" class="task-list"></ul>
           </div>
 
           <div class="panel list-panel full-width">
             <div class="section-header">
               <h3>Notes</h3>
             </div>
-            <ul id="notes-list" class="note-list"></ul>
+            <ul id="notesList" class="note-list"></ul>
           </div>
         </section>
       </main>
